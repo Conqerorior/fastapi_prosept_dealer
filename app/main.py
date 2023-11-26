@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 
-app = FastAPI(
-    title='FastAPI Prosept Dealer'
-)
+from app.auth.routers import user_router
+
+app = FastAPI(title='FastAPI Prosept Dealer')
+
+app.include_router(user_router)
 
 
 @app.get('/')

@@ -1,6 +1,7 @@
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from app.auth.security import pwd_context
 from app.db.database import Base
 
 
@@ -68,9 +69,22 @@ class MarketingProductDealerKey(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     key = Column(String, ForeignKey("marketing_dealerprice.product_key"))
-    product_id = Column(Integer, ForeignKey("marketing_product.id"))
     dealer_id = Column(Integer, ForeignKey("marketing_dealer.id"))
+    product_id = Column(Integer, ForeignKey("marketing_product.id"))
 
     dealerprice = relationship("MarketingDealerPrice")
     product = relationship("MarketingProduct")
     dealer = relationship("MarketingDealer")
+
+
+class User(Base):
+    """Таблица пользователей."""
+
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.hashed_password)
