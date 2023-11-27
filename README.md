@@ -3,6 +3,10 @@
   <img src="https://img.shields.io/badge/Python-добавить_версию-F8F8FF?style=for-the-badge&logo=python&logoColor=20B2AA">
 </div>
 
+
+# Документация API
+[fastapi_proseptdealer/api/docs](https://clownvkkaschenko.github.io/ReferralSystem/)
+
 # Запуск проекта:
 - Клонируйте репозиторий и перейдите в него.
 - Установите и активируйте виртуальное окружение.

@@ -21,13 +21,11 @@ class MarketingDealerPrice(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     product_key = Column(
-        String, unique=True,
-        comment='уникальный номер позиции'
+        String, comment='уникальный номер позиции'  # unique=True??
     )
     price = Column(Float, comment='цена')
     product_url = Column(
-        String,
-        comment='адрес страницы, откуда собраны данные'
+        String, comment='адрес страницы, откуда собраны данные'
     )
     product_name = Column(String, comment='заголовок продаваемого товара')
     date = Column(DateTime, comment='дата получения информации')
@@ -36,9 +34,17 @@ class MarketingDealerPrice(Base):
 
     dealer = relationship("MarketingDealer")
 
+    def to_dict(self):
+        """
+        Вспомогательный метод, преобразования данных в список со
+        словарями. Что-бы была возможность передать необходимые данные
+        в функцию для ML.
+        """
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class MarketingProduct(Base):
-    """Список товаров, которые производит и распространяет заказчик."""
+    """Список товаров, которые производит и распространяет «Просепт»."""
 
     __tablename__ = 'marketing_product'
 
@@ -48,8 +54,7 @@ class MarketingProduct(Base):
     cost = Column(Float, comment='стоимость')
     name = Column(String, comment='название товара')
     min_recommended_price = Column(
-        Float,
-        comment='рекомендованная минимальная цена'
+        Float, comment='рекомендованная минимальная цена'
     )
     recommended_price = Column(Float, comment='рекомендованная цена')
     category_id = Column(String, comment='категория товара')
@@ -61,20 +66,13 @@ class MarketingProduct(Base):
     ym_article = Column(String, comment='артикул для Яндекс.Маркета')
     wb_article_td = Column(String, comment='артикул для Wildberries td')
 
-
-class MarketingProductDealerKey(Base):
-    """Таблица матчинга товаров заказчика и товаров диллеров."""
-
-    __tablename__ = 'marketing_productdealerkey'
-
-    id = Column(Integer, primary_key=True, index=True)
-    key = Column(String, ForeignKey("marketing_dealerprice.product_key"))
-    dealer_id = Column(Integer, ForeignKey("marketing_dealer.id"))
-    product_id = Column(Integer, ForeignKey("marketing_product.id"))
-
-    dealerprice = relationship("MarketingDealerPrice")
-    product = relationship("MarketingProduct")
-    dealer = relationship("MarketingDealer")
+    def to_dict(self):
+        """
+        Вспомогательный метод, преобразования данных в список со
+        словарями. Что-бы была возможность передать необходимые данные
+        в функцию для ML.
+        """
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class User(Base):
