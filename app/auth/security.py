@@ -13,10 +13,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 240
 
 
 def get_password_hash(password):
+    """Генерация хеш-пароля"""
+
     return pwd_context.hash(password)
 
 
 def create_access_token(data: dict):
+    """Создание JWT-токена для аутентификации пользователя."""
+
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
