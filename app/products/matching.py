@@ -11,16 +11,16 @@ Original file is located at
 def matching(lst_dict_pr,
              lst_dict_dr):  # lst_dict_pr список словарей карточек производителя
     # lst_dict_dr список словарей карточек диллеров
-    import nltk
-    from nltk.tokenize import word_tokenize
-    from nltk.corpus import stopwords
-    from nltk.stem import PorterStemmer
-    from nltk.stem import WordNetLemmatizer
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    from scipy.spatial.distance import cdist
-    import pandas as pd
     import re
+
+    import nltk
     import numpy as np
+    import pandas as pd
+    from nltk.corpus import stopwords
+    from nltk.stem import PorterStemmer, WordNetLemmatizer
+    from nltk.tokenize import word_tokenize
+    from scipy.spatial.distance import cdist
+    from sklearn.feature_extraction.text import TfidfVectorizer
 
     nltk.download('stopwords')
     nltk.download('punkt')

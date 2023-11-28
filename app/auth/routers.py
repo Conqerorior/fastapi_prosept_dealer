@@ -11,7 +11,8 @@ user_router = APIRouter()
 
 
 @user_router.post("/token", response_model=Token,
-                  summary='Получение JWT токена')
+                  summary='Получение JWT токена',
+                  tags=['Аутентификация'])
 async def login_for_access_token(login_request: LoginRequest,
                                  db: AsyncSession = Depends(get_db)):
     """Аутентификация пользователя, получение JWT-токена."""
@@ -29,7 +30,8 @@ async def login_for_access_token(login_request: LoginRequest,
 
 
 @user_router.post("/users/", response_model=User,
-                  summary='Регистрация пользователей')
+                  summary='Регистрация пользователей',
+                  tags=['Аутентификация'])
 async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     """Регистрация нового пользователя."""
 
