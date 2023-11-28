@@ -22,9 +22,9 @@ def setup_admin(app, engine):
         column_list = [
             MarketingDealerPrice.id,
             MarketingDealerPrice.price,
-            MarketingDealerPrice.dealer,
             MarketingDealerPrice.product_name,
             MarketingDealerPrice.product_url,
+            MarketingDealerPrice.date
         ]
 
     class MarketingProductAdmin(ModelView, model=MarketingProduct):
