@@ -5,14 +5,20 @@ from app.models.models import (MarketingDealer,
 
 
 def setup_admin(app, engine):
-    admin = Admin(app, engine)
+    admin = Admin(app, engine, title='Админ Панель')
 
     class MarketingDealerAdmin(ModelView, model=MarketingDealer):
         """Отображение Модели Маркетинг Дилер."""
 
+        name = 'Дилер'
+        name_plural = 'Дилеры'
         column_list = [MarketingDealer.id, MarketingDealer.name]
 
     class MarketingDealerPriceAdmin(ModelView, model=MarketingDealerPrice):
+        """Отображение Модели Цена Дилера."""
+
+        name = 'Продукты Дилера'
+        name_plural = 'Продукты Дилеров'
         column_list = [
             MarketingDealerPrice.id,
             MarketingDealerPrice.price,
@@ -22,8 +28,10 @@ def setup_admin(app, engine):
         ]
 
     class MarketingProductAdmin(ModelView, model=MarketingProduct):
-        """Отображение Модели Маркетинг Продукт."""
+        """Отображение Модели Просепт."""
 
+        name = 'Просепт'
+        name_plural = 'Продукты Просепта'
         column_list = [
             MarketingProduct.id,
             MarketingProduct.name,

@@ -58,7 +58,7 @@ async def compare_products(db: AsyncSession = Depends(get_db)):
 
     for item in match:
         for key, value in item.items():
-            for data in dr_dicts:
+            for data in pr_dicts:
                 if value == data['id']:
                     item[key] = data
     return match
