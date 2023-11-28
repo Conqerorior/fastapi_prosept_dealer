@@ -1,15 +1,14 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.models.models import (MarketingDealer, MarketingDealerPrice,
-                               MarketingProduct)
 
-from .crud import get_all_data
+from .crud import get_all_data, get_data_by_id
 from .matching import matching
+from .models import MarketingDealer, MarketingDealerPrice, MarketingProduct
 from .schemas import (MarketingDealerModel, MarketingDealerPriceModel,
                       MarketingProductModel)
 
@@ -17,7 +16,8 @@ products_router = APIRouter()
 
 
 @products_router.get("/dealers", summary='Список диллеров',
-                     response_model=List[MarketingDealerModel])
+                     response_model=List[MarketingDealerModel],
+                     tags=['Список всех объектов'])
 async def read_dealers(db: AsyncSession = Depends(get_db)):
     """Выводит объекты модели «MarketingDealer»"""
 
@@ -26,7 +26,8 @@ async def read_dealers(db: AsyncSession = Depends(get_db)):
 
 
 @products_router.get("/products", summary='Список товаров Просепт',
-                     response_model=List[MarketingProductModel])
+                     response_model=List[MarketingProductModel],
+                     tags=['Список всех объектов'])
 async def read_products(db: AsyncSession = Depends(get_db)):
     """Выводит объекты модели «MarketingProduct»"""
 
@@ -34,8 +35,24 @@ async def read_products(db: AsyncSession = Depends(get_db)):
     return items
 
 
+@products_router.get("/products/{id}", tags=['Получение объекта по ID'],
+                     summary='Получение товара Просепт по ID',
+                     response_model=MarketingProductModel)
+async def product_by_id(db: AsyncSession = Depends(get_db),
+                        id: int = Path(..., description='ID товара')):
+    """Выводит объект модели «MarketingProduct» по ID
+
+    Данный запрос можно написать для всех моделей, но пока создал
+    только для одной модели.
+    """
+
+    items = await get_data_by_id(db, MarketingProduct, id)
+    return items
+
+
 @products_router.get("/dealerprice", summary='Список товаров от парсера',
-                     response_model=List[MarketingDealerPriceModel])
+                     response_model=List[MarketingDealerPriceModel],
+                     tags=['Список всех объектов'])
 async def read_dealerprice(db: AsyncSession = Depends(get_db)):
     """Выводит объекты модели «MarketingDealerPrice»"""
 
@@ -62,4 +79,3 @@ async def compare_products(db: AsyncSession = Depends(get_db)):
                 if value == data['id']:
                     item[key] = data
     return match
-

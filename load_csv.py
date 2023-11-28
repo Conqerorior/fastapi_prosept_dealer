@@ -9,8 +9,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import engine
-from app.models.models import (MarketingDealer, MarketingDealerPrice,
-                               MarketingProduct)
+from app.products.models import (MarketingDealer, MarketingDealerPrice,
+                                 MarketingProduct, MarketingProductDealerKey)
 
 """
 Каждый csv файл имеет свои особенности при добавлении данных,
@@ -33,6 +33,10 @@ csv_files = {
             'cost': float,
             'min_recommended_price': float,
             'recommended_price': float}
+    },
+    'marketing_productdealerkey.csv': {
+        'model': MarketingProductDealerKey,
+        'data_types': {'product_id': int, 'dealer_id': int}
     }
 }
 
@@ -83,12 +87,12 @@ async def add_data_from_csv(file_configs, session):
                     item = model(**row)
                     session.add(item)
 
-                try:
-                    await session.commit()
-                except IntegrityError as e:
-                    await session.rollback()
-                    print(f"Ошибка целостности для записи {row}, пропускаем.")
-                    raise e
+                    try:
+                        await session.commit()
+                    except IntegrityError:
+                        await session.rollback()
+                        continue
+
             print(f'{csv_file} добавлен в БД')
     except Exception as e:
         await session.rollback()

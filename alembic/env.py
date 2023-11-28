@@ -3,9 +3,12 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from app.auth.models import User
 from app.config import (DB_HOST, DB_NAME, DB_PORT, POSTGRES_PASSWORD,
                         POSTGRES_USER)
-from app.models.models import Base
+from app.db.database import Base
+from app.products.models import (MarketingDealer, MarketingDealerPrice,
+                                 MarketingProduct, MarketingProductDealerKey)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -1,7 +1,7 @@
 from sqladmin import Admin, ModelView
-from app.models.models import (MarketingDealer,
-                               MarketingDealerPrice,
-                               MarketingProduct)
+
+from app.products.models import (MarketingDealer, MarketingDealerPrice,
+                                 MarketingProduct)
 
 
 def setup_admin(app, engine):
