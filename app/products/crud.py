@@ -11,7 +11,3 @@ async def get_all_data(db: AsyncSession, model):
 
     result = await db.execute(select(model).limit(18))
     return result.scalars().all()
-
-
-async def get_matcing(db: AsyncSession, model):
-    pass
