@@ -44,7 +44,7 @@ def setup_admin(app, engine):
         """Отображение Модели Просепт."""
 
         def colum_format(self, value):
-            """Функция регулирования ширины колонки"""
+            """Функция регулирования ширины колонки."""
 
             return self.name[:40] if value else ''
 
