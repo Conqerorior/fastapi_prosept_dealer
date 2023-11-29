@@ -7,6 +7,7 @@ from app.auth.models import User
 from app.config import (DB_HOST, DB_NAME, DB_PORT, POSTGRES_PASSWORD,
                         POSTGRES_USER)
 from app.db.database import Base
+from app.matching.models import MatchingProductDealer
 from app.products.models import (MarketingDealer, MarketingDealerPrice,
                                  MarketingProduct, MarketingProductDealerKey)
 
