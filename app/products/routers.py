@@ -1,13 +1,11 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, Path
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 
 from .crud import get_all_data, get_data_by_id
-from .matching import matching
 from .models import MarketingDealer, MarketingDealerPrice, MarketingProduct
 from .schemas import (MarketingDealerModel, MarketingDealerPriceModel,
                       MarketingProductModel)
@@ -58,24 +56,3 @@ async def read_dealerprice(db: AsyncSession = Depends(get_db)):
 
     items = await get_all_data(db, MarketingDealerPrice)
     return items
-
-
-@products_router.get('/compare', summary='Сравнение товаров')
-async def compare_products(db: AsyncSession = Depends(get_db)):
-    """Преобразует объекты «MarketingDealerPrice» и «MarketingProduct»
-    в список словарей для передачи в функцию сравнения (matching)."""
-
-    pr_data = await read_products(db)
-    dr_data = await read_dealerprice(db)
-
-    pr_dicts = [jsonable_encoder(item) for item in pr_data]
-    dr_dicts = [jsonable_encoder(item) for item in dr_data]
-
-    match = matching(pr_dicts, dr_dicts)
-
-    for item in match:
-        for key, value in item.items():
-            for data in pr_dicts:
-                if value == data['id']:
-                    item[key] = data
-    return match
