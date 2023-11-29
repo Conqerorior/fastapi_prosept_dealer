@@ -1,4 +1,9 @@
-"""Скрипт для добавления данных из csv файлов в БД."""
+"""Скрипт для добавления данных в БД
+
+- Сначала загружаются данные из csv файлов.
+- После загрузки данных из csv запускается функция для
+  загрузки данных, которые получены от DS.
+"""
 
 import asyncio
 import csv
@@ -9,6 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import engine
+from app.matching.load_db import load_data
 from app.products.models import (MarketingDealer, MarketingDealerPrice,
                                  MarketingProduct, MarketingProductDealerKey)
 
@@ -102,5 +108,6 @@ async def add_data_from_csv(file_configs, session):
 async def main():
     async with AsyncSession(engine) as session:
         await add_data_from_csv(csv_files, session)
+        await load_data(session)
 
 asyncio.run(main())
