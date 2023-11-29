@@ -87,3 +87,11 @@ class MarketingProductDealerKey(Base):
     dealerprice = relationship("MarketingDealerPrice")
     product = relationship("MarketingProduct")
     dealer = relationship("MarketingDealer")
+
+    def to_dict(self):
+        """
+        Вспомогательный метод, преобразования данных в список со
+        словарями. Что-бы была возможность передать необходимые данные
+        в функцию для ML.
+        """
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
