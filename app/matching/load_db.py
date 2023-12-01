@@ -64,7 +64,7 @@ async def data_preparation(
 
         new_matching_product = MatchingProductDealer(
             product_ids=product_ids,
-            dealerprice_id=dict_item['dealerprice_id'])
+            dealer_product_id=dict_item['dealerprice_id'])
 
         matching_products.append(new_matching_product)
 
@@ -78,6 +78,8 @@ async def load_data(session: AsyncSession):
     try:
         for item in matching_products:
             session.add(item)
+            await session.flush()
+            item.order = item.id
         await session.commit()
         print('Данные DS добавлены в БД.')
     except Exception as e:
