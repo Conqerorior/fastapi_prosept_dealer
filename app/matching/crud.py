@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 
 from app.products.models import MarketingDealer, MarketingProduct
 
-from .models import MatchingProductDealer
+from .models import MatchingProductDealer, MatchPositiveProductDealer
 
 
 async def get_all_data(db: AsyncSession, model):
@@ -15,14 +15,14 @@ async def get_all_data(db: AsyncSession, model):
     return result.scalars().all()
 
 
-async def get_data_by_id(db: AsyncSession, model, id):
+async def get_data_by_id(db: AsyncSession, model, id: int):
     """Получаем один объект, из выбранной модели, по значению ID."""
 
     result = await db.execute(select(model).filter(model.id == id))
     return result.scalars().one_or_none()
 
 
-async def get_dealer_name(db: AsyncSession, id):
+async def get_dealer_name(db: AsyncSession, id: int):
     """Получаем название дилера из модели «MarketingDealer» по значению ID."""
 
     dealer = await db.execute(select(MarketingDealer).filter(
@@ -55,7 +55,46 @@ async def get_all_dealer_product_ids(db: AsyncSession):
     return dealerprice_ids
 
 
-async def delete_dealer_product(db: AsyncSession, id):
+async def create_dealer_product(db: AsyncSession, id: int):
+    """Создаем новую запись в таблице MatchPositiveProductDealer
+    и удаляем запись из MatchingProductDealer"""
+
+    create_object = await db.execute(select(MatchingProductDealer).where(
+        MatchingProductDealer.dealer_product_id == id))
+
+    create_object = create_object.scalars().one_or_none()
+
+    if not create_object:
+        raise HTTPException(status_code=404, detail='Объект не найден')
+
+    positive_product_dealer = MatchPositiveProductDealer(
+        dealer_product_id=create_object.dealer_product_id,
+        product_ids=create_object.product_ids
+    )
+
+    # Добавляем объекты в сеанс
+    db.add(positive_product_dealer)
+
+    # Удаляем из таблицы MatchingProductDealer
+    await delete_dealer_product(db, create_object.id)
+
+    # Сохраняем изменения в базе данных
+    await db.commit()
+
+
+async def patch_dealer_product(db: AsyncSession, id: int):
+    """Обновляем поле order в моделе «MatchingProductDealer»."""
+
+    max_order = await db.execute(func.max(MatchingProductDealer.order))
+    max_order = max_order.scalar()
+
+    await db.execute(update(MatchingProductDealer).
+                     where(MatchingProductDealer.dealer_product_id == id).
+                     values(order=max_order+1))
+    await db.commit()
+
+
+async def delete_dealer_product(db: AsyncSession, id: int):
     """
     Удаляем объект «MatchingProductDealer», по значению поля dealer_product_id.
     """
@@ -68,16 +107,4 @@ async def delete_dealer_product(db: AsyncSession, id):
 
     await db.execute(Delete(MatchingProductDealer).where(
         MatchingProductDealer.dealer_product_id == id))
-    await db.commit()
-
-
-async def patch_dealer_product(db: AsyncSession, id):
-    """Обновляем поле order в моделе «MatchingProductDealer»."""
-
-    max_order = await db.execute(func.max(MatchingProductDealer.order))
-    max_order = max_order.scalar()
-
-    await db.execute(update(MatchingProductDealer).
-                     where(MatchingProductDealer.dealer_product_id == id).
-                     values(order=max_order+1))
     await db.commit()

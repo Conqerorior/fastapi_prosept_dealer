@@ -8,7 +8,7 @@ from app.products.models import MarketingDealerPrice
 
 from .crud import (delete_dealer_product, get_5_prosept_products, get_all_data,
                    get_all_dealer_product_ids, get_data_by_id, get_dealer_name,
-                   patch_dealer_product)
+                   patch_dealer_product, create_dealer_product)
 from .models import MatchingProductDealer
 from .schemas import DealerProductModel, MatchingProductDealerModel
 
@@ -122,21 +122,20 @@ async def read_dealer_product(db: AsyncSession = Depends(get_db)):
     return response
 
 
-@matching_router.delete('/matching/{dealer_product_id}',
-                        tags=['Матчинг'], response_model=None,
-                        summary='Удалить карточку дилера')
-async def delete_product(
-    dealer_product_id: int = Path(..., description='ID карточки дилера'),
-    db: AsyncSession = Depends(get_db)
+@matching_router.post(path='/matching/{dealer_product_id}',
+                      tags=['Матчинг'],
+                      response_model=None,
+                      summary='Сохранение карточек '
+                              'после обработки оператором')
+async def post_product(
+        dealer_product_id: int = Path(..., description='ID карточки дилера'),
+        db: AsyncSession = Depends(get_db)
 ):
     """
-    - Удаляем объект модели «MatchingProductDealer», по значению
-      поля dealer_product_id.
-
-    - Удаляем карточку дилера и 5 связанных с ним карточек товаров Просепт.
+    Передаем id карточки дилера для удаления из MatchingProductDealer
+    и создаем новую запись в MatchPositiveProductDealer.
     """
-
-    await delete_dealer_product(db, dealer_product_id)
+    await create_dealer_product(db, dealer_product_id)
 
 
 @matching_router.patch('/matching/{dealer_product_id}',
@@ -154,3 +153,20 @@ async def patch_product(
     """
 
     await patch_dealer_product(db, dealer_product_id)
+
+
+@matching_router.delete('/matching/{dealer_product_id}',
+                        tags=['Матчинг'], response_model=None,
+                        summary='Удалить карточку дилера')
+async def delete_product(
+    dealer_product_id: int = Path(..., description='ID карточки дилера'),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    - Удаляем объект модели «MatchingProductDealer», по значению
+      поля dealer_product_id.
+
+    - Удаляем карточку дилера и 5 связанных с ним карточек товаров Просепт.
+    """
+
+    await delete_dealer_product(db, dealer_product_id)

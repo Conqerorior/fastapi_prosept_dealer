@@ -20,3 +20,17 @@ class MatchingProductDealer(Base):
         comment='Поле для сортировки. Для реализации кнопки «Отложить»')
 
     dealerprice = relationship("MarketingDealerPrice")
+
+
+class MatchPositiveProductDealer(Base):
+    """Итоговая таблица с данными Просепт и дилеров после
+    работы функции от DS и выбора оператора."""
+
+    __tablename__ = 'match_positive_prod_dealer'
+
+    id = Column(Integer, primary_key=True, index=True)
+    dealer_product_id = Column(
+        Integer, ForeignKey('marketing_dealerprice.id'),
+        comment='ID товара от дилера'
+    )
+    product_ids = Column(ARRAY(Integer), comment='Пять ID товаров от Просепт')
