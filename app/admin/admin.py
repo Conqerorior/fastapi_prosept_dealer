@@ -1,5 +1,6 @@
 from sqladmin import Admin, ModelView
 
+from app.matching.models import MatchingProductDealer
 from app.products.models import (MarketingDealer, MarketingDealerPrice,
                                  MarketingProduct)
 
@@ -61,7 +62,7 @@ def setup_admin(app, engine):
             MarketingProduct.cost: 'Цена',
             MarketingProduct.ean_13: 'Код Товара',
             MarketingProduct.article: 'Артикул',
-            MarketingProduct.min_recommended_price: 'Рекомендованная мин. цена',
+            MarketingProduct.min_recommended_price: 'Рекомендованная мин.цена',
             MarketingProduct.recommended_price: 'Рекомендованная Цена',
         }
 
@@ -79,6 +80,28 @@ def setup_admin(app, engine):
             MarketingProduct.recommended_price,
         ]
 
+    class MatchingProductDealerAdmin(ModelView, model=MatchingProductDealer):
+        """Отображение модели матчинга."""
+
+        name = 'Матчинг товаров'
+        name_plural = 'Матчинг товаров'
+        column_labels = {
+            MatchingProductDealer.product_ids: 'Пять ID товаров от Просепт',
+            MatchingProductDealer.dealer_product_id: 'ID товара от диллера',
+            MatchingProductDealer.order: 'Поле для сортировки.'
+        }
+        column_default_sort = [('order', False)]
+        column_sortable_list = [
+            MatchingProductDealer.order
+        ]
+        column_list = [
+            MatchingProductDealer.id,
+            MatchingProductDealer.dealer_product_id,
+            MatchingProductDealer.product_ids,
+            MatchingProductDealer.order
+        ]
+
     admin.add_view(MarketingDealerAdmin)
     admin.add_view(MarketingDealerPriceAdmin)
     admin.add_view(MarketingProductAdmin)
+    admin.add_view(MatchingProductDealerAdmin)

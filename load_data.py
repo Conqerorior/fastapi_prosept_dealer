@@ -3,6 +3,7 @@
 - Сначала загружаются данные из csv файлов.
 - После загрузки данных из csv запускается функция для
   загрузки данных, которые получены от DS.
+- Создаём один объект в модели Statistics.
 """
 
 import asyncio
@@ -15,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import engine
 from app.matching.load_db import load_data
+from app.matching.models import Statistics
 from app.products.models import (MarketingDealer, MarketingDealerPrice,
                                  MarketingProduct, MarketingProductDealerKey)
 
@@ -105,9 +107,24 @@ async def add_data_from_csv(file_configs, session):
         raise e
 
 
+async def add_statistics(session: AsyncSession):
+    """Создаём объект в модели Statistics."""
+
+    new_object = Statistics(id=1)
+
+    try:
+        session.add(new_object)
+        await session.commit()
+        print('Объект в модели Statistics создан.')
+    except Exception as e:
+        await session.rollback()
+        raise e
+
+
 async def main():
     async with AsyncSession(engine) as session:
         await add_data_from_csv(csv_files, session)
         await load_data(session)
+        await add_statistics(session)
 
 asyncio.run(main())
