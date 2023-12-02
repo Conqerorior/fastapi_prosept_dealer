@@ -1,73 +1,21 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.products.models import MarketingDealerPrice
 
 from .crud import (create_dealer_product, get_5_prosept_products, get_all_data,
-                   get_all_dealer_product_ids, get_data_by_id, get_dealer_name,
-                   patch_dealer_product, save_delete_dealer_product,
-                   update_statistics)
+                   get_data_by_id, get_dealer_name,
+                   get_match_positive_product_dealer, patch_dealer_product,
+                   save_delete_dealer_product, update_statistics)
 from .models import MatchingProductDealer, Statistics
 from .schemas import (DealerProductModel, MatchingProductDealerModel,
-                      ProductData, StatisticsData)
+                      MatchPositiveProductDealerModel, ProductData,
+                      StatisticsData)
 
 api_version1 = APIRouter()
-
-
-@api_version1.get("/api/v1/dealer_products", tags=['Карточки дилера'],
-                  response_model=List[DealerProductModel],
-                  summary='Список всех карточек от дилера')
-async def read_dealer_products(db: AsyncSession = Depends(get_db)):
-    """
-    - Получаем все объекты модели «MarketingDealerPrice», по значениям
-      ID, из поля dealer_product_id модели «MatchingProductDealer».
-
-    - Получаем все карточки с товарами дилеров.
-    """
-
-    response = []
-
-    dealerprice_ids = await get_all_dealer_product_ids(db)
-    for id in dealerprice_ids:
-        obj = await get_data_by_id(db, MarketingDealerPrice, id)
-
-        response.append(DealerProductModel(
-            id=obj.id,
-            dealer_name=await get_dealer_name(db, obj.dealer_id),
-            product_name=obj.product_name,
-            price=obj.price,
-            product_url=obj.product_url
-        ))
-
-    return response
-
-
-@api_version1.get("/api/v1/dealer_products/{id}", tags=['Карточки дилера'],
-                  response_model=DealerProductModel,
-                  summary='Карточка дилера по ID')
-async def dealer_products_by_id(db: AsyncSession = Depends(get_db),
-                                id: int = Path(..., description='ID объекта')):
-    """
-    - Получаем объект модели «MarketingDealerPrice» по значению ID,
-      из поля поля dealer_product_id модели «MatchingProductDealer».
-
-    - Получаем карточку дилера по ID.
-    """
-
-    obj = await get_data_by_id(db, MarketingDealerPrice, id)
-
-    response = DealerProductModel(
-        id=obj.id,
-        dealer_name=await get_dealer_name(db, obj.dealer_id),
-        product_name=obj.product_name,
-        price=obj.price,
-        product_url=obj.product_url
-    )
-
-    return response
 
 
 @api_version1.get('/api/v1/matching', tags=['Матчинг'],
@@ -123,8 +71,9 @@ async def read_dealer_product(db: AsyncSession = Depends(get_db)):
     return response
 
 
-@api_version1.post('/api/v1/matching/{dealer_product_id}',
-                   tags=['Матчинг'], response_model=None,
+@api_version1.post('/api/v1/matching/{dealer_product_id}', tags=['Матчинг'],
+                   response_model=MatchPositiveProductDealerModel,
+                   status_code=status.HTTP_201_CREATED,
                    summary='Сохранение карточки '
                            'после обработки оператором')
 async def post_product(
@@ -138,8 +87,15 @@ async def post_product(
       «MatchPositiveProductDealer» с карточкой Просепт, полученной
       по значению prosept_id.
     """
-    await create_dealer_product(db, dealer_product_id, prosept_product_id)
+    prosept_id = prosept_product_id.prosept_id
+
+    await create_dealer_product(db, dealer_product_id, prosept_id)
     await update_statistics(db, 'accepted_cards')
+
+    created_object = await get_match_positive_product_dealer(
+        db, dealer_product_id, prosept_id
+    )
+    return created_object
 
 
 @api_version1.patch('/api/v1/matching/{dealer_product_id}',
@@ -162,6 +118,7 @@ async def patch_product(
 
 @api_version1.delete('/api/v1/matching/{dealer_product_id}',
                      tags=['Матчинг'], response_model=None,
+                     status_code=status.HTTP_204_NO_CONTENT,
                      summary='Удалить карточку дилера')
 async def delete_product(
     dealer_product_id: int = Path(..., description='ID карточки дилера'),
@@ -169,7 +126,8 @@ async def delete_product(
 ):
     """
     - Удаляем объект модели «MatchingProductDealer», по значению
-      поля dealer_product_id.
+      поля dealer_product_id. И создаем новую запись в
+      «DelMatchingProductDealer».
 
     - Удаляем карточку дилера и 5 связанных с ним карточек товаров Просепт.
     """
@@ -192,7 +150,10 @@ async def get_statistics(db: AsyncSession = Depends(get_db)):
                            obj.postponed_cards)
 
     # Процент принятых карточек
-    percentage_accepted_cards = (obj.accepted_cards/total_cards_checked) * 100
+    if total_cards_checked == 0:
+        percentage_accepted_cards = 0
+    else:
+        percentage_accepted_cards = (obj.accepted_cards/total_cards_checked) * 100
 
     response = StatisticsData(
         total_cards_checked=total_cards_checked,

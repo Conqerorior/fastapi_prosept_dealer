@@ -41,3 +41,9 @@ class StatisticsData(BaseModel):
     postponed_cards: int = Field(description='Количество отложенных карточек')
     percentage_accepted_cards: float = Field(
         description='Процент принятых карточек')
+
+
+class MatchPositiveProductDealerModel(BaseModel):
+    id: int = Field(description='ID объекта в БД')
+    dealer_product_id: int = Field(description='ID карточки дилера')
+    product_id: int = Field(description='ID товара Просепт')
