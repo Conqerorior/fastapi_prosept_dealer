@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import asc, delete, func, update
+from sqlalchemy import and_, asc, delete, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -44,23 +44,11 @@ async def get_5_prosept_products(db: AsyncSession, list_ids):
     return prosept_products
 
 
-async def get_all_dealer_product_ids(db: AsyncSession):
-    """Получаем все поля dealer_product_id модели «MatchingProductDealer».
-
-    Получаем список ID всех карточек дилера.
-    """
-
-    result = await db.execute(select(MatchingProductDealer.dealer_product_id).
-                              order_by(asc(MatchingProductDealer.order)))
-    dealerprice_ids = result.scalars().all()
-    return dealerprice_ids
-
-
 async def create_dealer_product(db: AsyncSession, dealer_product_id: int,
                                 prosept_product_id: int):
     """
-    Создаем новую запись в таблице MatchPositiveProductDealer
-    и удаляем запись из MatchingProductDealer.
+    Создаем новую запись в таблице «MatchPositiveProductDealer»
+    и удаляем запись из «MatchingProductDealer».
 
     Args:
         db (AsyncSession): Асинхронная сессия для подключения к БД.
@@ -71,17 +59,16 @@ async def create_dealer_product(db: AsyncSession, dealer_product_id: int,
     create_object = await db.execute(select(MatchingProductDealer).where(
         MatchingProductDealer.dealer_product_id == dealer_product_id))
     create_object = create_object.scalars().one_or_none()
-    prosept_id = prosept_product_id.prosept_id
 
     if not create_object:
         raise HTTPException(status_code=404, detail='Объект не найден')
-    elif prosept_id not in create_object.product_ids:
+    elif prosept_product_id not in create_object.product_ids:
         raise HTTPException(
             status_code=404,
             detail=('Для параметра prosept_product_id передайте одно из '
                     'значений ID, которые есть в списке product_ids'))
 
-    product_id = await get_data_by_id(db, MarketingProduct, prosept_id)
+    product_id = await get_data_by_id(db, MarketingProduct, prosept_product_id)
     positive_product_dealer = MatchPositiveProductDealer(
         dealer_product_id=create_object.dealer_product_id,
         product_id=product_id.id
@@ -161,3 +148,20 @@ async def save_delete_dealer_product(db: AsyncSession, id: int):
     db.add(new_del_matching_product_dealer)
     await delete_dealer_product(db, id)
     await db.commit()
+
+
+async def get_match_positive_product_dealer(
+        db: AsyncSession, dealer_product_id: int,
+        prosept_product_id: int
+):
+    """Получаем объект из модели «MatchPositiveProductDealer»."""
+
+    model = MatchPositiveProductDealer
+    result = await db.execute(
+        select(model).
+        filter(
+            and_(model.dealer_product_id == dealer_product_id,
+                 model.product_id == prosept_product_id)
+        )
+    )
+    return result.scalars().one_or_none()
