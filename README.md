@@ -27,6 +27,7 @@
   DB_HOST=localhost
   DB_PORT=5432
   POSTGRES_PASSWORD=password
+  CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
   ```
 - Находясь в корневой папке проекта выполните миграции.
   ```
@@ -59,6 +60,7 @@
   DB_HOST=db
   DB_PORT=5432
   POSTGRES_PASSWORD=password
+  CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
   PGADMIN_DEFAULT_EMAIL=user@gmail.ru
   PGADMIN_DEFAULT_PASSWORD=user_password
     ``` 
