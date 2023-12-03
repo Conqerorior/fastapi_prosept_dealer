@@ -20,22 +20,22 @@
     python -m pip install --upgrade pip
     pip install -r requirements.txt
     ``` 
-- Необходимо создать файл **.env**, в корневой папке проекта, с переменными окружения.
+- Создайте файл **.env**, в корневой папке проекта, с переменными окружения.
   ```
   DB_NAME=postgres
   POSTGRES_USER=postgres
   DB_HOST=localhost
   DB_PORT=5432
-  POSTGRES_PASSWORD=postgres
+  POSTGRES_PASSWORD=password
   ```
 - Находясь в корневой папке проекта выполните миграции.
   ```
   alembic revision --autogenerate -m "Initial migration"
   alembic upgrade head
   ```
-- Что-бы загрузить данные из csv файлов в БД, и данные полученные от DS, запустите скрипт **load_data.py** из корневой папки проекта.
+- Загрузите в базу данных подготовленные данные.
 
-  P.S. Выполнение скрипта может занять продолжительное время.
+  P.S. Выполнение скрипта может занять продолжительное время(1-5 минут)
   ```
   python load_data.py
   ```
@@ -43,15 +43,61 @@
   ```
   uvicorn app.main:app --reload
   ```
-- После запуска сервера, документация API будет доступна по адресу [127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+- Документация к API будет доступна по url-адресу [127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+- Админка, с некоторыми таблицами БД, будет доступна по url-адресу [127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
+
 </details>
 
 <details><summary><h1>Запуск проекта через докер</h1></summary>
 
-- Тут будет инструкция по сборке проекта через докер
+- Клонируйте репозиторий.
+- Перейдите в папку **infra** и создайте в ней файл **.env** с переменными окружения:
+    ```
+  DB_NAME=postgres
+  POSTGRES_USER=postgres
+  DB_HOST=db
+  DB_PORT=5432
+  POSTGRES_PASSWORD=password
+  PGADMIN_DEFAULT_EMAIL=user@gmail.ru
+  PGADMIN_DEFAULT_PASSWORD=user_password
+    ``` 
+- Из папки **infra** запустите docker-compose:
+  ```
+  ~$ docker-compose up -d --build
+  ```
+- В контейнере **backend** выполните миграции:
+  ```
+  ~$ docker-compose exec backend alembic revision --autogenerate -m "Initial migration"
+
+  ~$ docker-compose exec backend alembic upgrade head
+  ```
+- Загрузите в базу данных подготовленные данные.
+
+  P.S. Выполнение скрипта может занять продолжительное время(1-5 минут)
+  ```
+  ~$ docker-compose exec backend python load_data.py
+  ```
+
+Документация к API будет доступна по url-адресу [127.0.0.1/redoc](http://127.0.0.1/redoc)
+
+Админка, с некоторыми таблицами БД, будет доступна по url-адресу [127.0.0.1/admin](http://127.0.0.1/admin)
+
+WEB-PgAdmin будет доступен по url-адресу [127.0.0.1:5050](http://127.0.0.1:5050/)
+
 </details>
 
-# Авторы
-[Сергей](https://github.com/Conqerorior)
+# Авторы:
 
-[Иван](https://github.com/clownvkkaschenko)
+* **Backend:**
+  + [Сергей](https://github.com/Conqerorior)
+  + [Иван](https://github.com/clownvkkaschenko)
+
+* **Data Science:**
+  + Кристина
+  + Юлия
+  + Александр
+
+* **Frontend:**
+  + Дмитрий
+  + Глеб
