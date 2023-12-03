@@ -45,5 +45,5 @@ class StatisticsData(BaseModel):
 
 class MatchPositiveProductDealerModel(BaseModel):
     id: int = Field(description='ID объекта в БД')
-    dealer_product_id: int = Field(description='ID карточки дилера')
-    product_id: int = Field(description='ID товара Просепт')
+    dealer_product: DealerProductModel = Field(description='Карточка товара дилера')
+    prosept_product: ProseptProductModel = Field(description='Карточка товара Просепт')

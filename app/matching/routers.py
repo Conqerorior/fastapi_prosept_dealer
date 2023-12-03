@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.products.models import MarketingDealerPrice
+from app.products.models import MarketingDealerPrice, MarketingProduct
 
 from .crud import (create_dealer_product, get_5_prosept_products, get_all_data,
                    get_data_by_id, get_dealer_name,
@@ -87,15 +87,32 @@ async def post_product(
       «MatchPositiveProductDealer» с карточкой Просепт, полученной
       по значению prosept_id.
     """
+
     prosept_id = prosept_product_id.prosept_id
 
     await create_dealer_product(db, dealer_product_id, prosept_id)
     await update_statistics(db, 'accepted_cards')
 
     created_object = await get_match_positive_product_dealer(
-        db, dealer_product_id, prosept_id
+        db, dealer_product_id, prosept_id)
+
+    dealer_product = await get_data_by_id(
+        db, MarketingDealerPrice, created_object.dealer_product_id)
+
+    dealer_pydantic = DealerProductModel(
+        id=dealer_product.id,
+        product_name=dealer_product.product_name,
+        price=dealer_product.price,
+        product_url=dealer_product.product_url,
+        dealer_name=await get_dealer_name(db, dealer_product.dealer_id))
+
+    prosept = await get_data_by_id(db, MarketingProduct, created_object.product_id)
+    response = MatchPositiveProductDealerModel(
+        id=created_object.id,
+        dealer_product=dealer_pydantic,
+        prosept_product=prosept.to_dict()
     )
-    return created_object
+    return response
 
 
 @api_version1.patch('/api/v1/matching/{dealer_product_id}',

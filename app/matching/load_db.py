@@ -1,6 +1,6 @@
 """Подготавливаем данные от DS и загружаем их в БД."""
 
-from typing import Dict, List
+from typing import List
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +11,7 @@ from app.products.models import (MarketingDealerPrice, MarketingProduct,
                                  MarketingProductDealerKey)
 
 from .models import MatchingProductDealer
-from .script_ds import match
+from .script_ds import matching_predict, matching_training
 
 
 async def data_preparation(
@@ -43,7 +43,8 @@ async def data_preparation(
     lst_dict_k = [item.to_dict() for item in productdealerkey.scalars().all()]
 
     # Получаем результат функции DS специалистов
-    matching: List[Dict] = match(lst_dict_pr, lst_dict_dr, lst_dict_k)
+    trained_model = matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k)
+    matching = matching_predict(lst_dict_pr, lst_dict_dr, trained_model)
 
     """
     Добавляем в каждый словарь дополнительный ключ «dealerprice_id», что-бы
