@@ -1,8 +1,9 @@
 from sqladmin import Admin, ModelView
 
 from app.matching.models import MatchingProductDealer
-from app.products.models import (MarketingDealer, MarketingDealerPrice,
-                                 MarketingProduct)
+from app.products.models import (DelMatchingProductDealer, MarketingDealer,
+                                 MarketingDealerPrice, MarketingProduct,
+                                 MatchPositiveProductDealer)
 
 
 def setup_admin(app, engine):
@@ -101,7 +102,39 @@ def setup_admin(app, engine):
             MatchingProductDealer.order
         ]
 
+    class MatchPositiveProductDealerAdmin(ModelView, model=MatchPositiveProductDealer):
+        """Отображение модели принятых карточек."""
+
+        name = 'Принятые карточки'
+        name_plural = 'Принятые карточки'
+        column_labels = {
+            MatchPositiveProductDealer.dealer_product_id: 'ID товара от дилера',
+            MatchPositiveProductDealer.product_id: 'ID товара Просепт',
+        }
+        column_list = [
+            MatchPositiveProductDealer.id,
+            MatchPositiveProductDealer.dealer_product_id,
+            MatchPositiveProductDealer.product_id,
+        ]
+
+    class DelMatchingProductDealerAdmin(ModelView, model=DelMatchingProductDealer):
+        """Отображение модели удалённых карточек."""
+
+        name = 'Удалённые карточки'
+        name_plural = 'Удалённые карточки'
+        column_labels = {
+            DelMatchingProductDealer.product_ids: 'Пять ID товаров от Просепт',
+            DelMatchingProductDealer.dealer_product_id: 'ID товара от диллера',
+        }
+        column_list = [
+            DelMatchingProductDealer.id,
+            DelMatchingProductDealer.dealer_product_id,
+            DelMatchingProductDealer.product_ids,
+        ]
+
     admin.add_view(MarketingDealerAdmin)
     admin.add_view(MarketingDealerPriceAdmin)
     admin.add_view(MarketingProductAdmin)
     admin.add_view(MatchingProductDealerAdmin)
+    admin.add_view(MatchPositiveProductDealerAdmin)
+    admin.add_view(DelMatchingProductDealerAdmin)

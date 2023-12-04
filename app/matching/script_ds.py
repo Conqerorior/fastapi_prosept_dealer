@@ -1,3 +1,5 @@
+"""Функция для обучения и функция для предсказания от DS."""
+
 import re
 
 import lightgbm as lgb
