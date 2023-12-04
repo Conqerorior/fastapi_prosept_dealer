@@ -124,7 +124,7 @@ async def add_statistics(session: AsyncSession):
 async def main():
     async with AsyncSession(engine) as session:
         await add_data_from_csv(csv_files, session)
-        await load_data(session)
         await add_statistics(session)
+        await load_data(session)
 
 asyncio.run(main())
