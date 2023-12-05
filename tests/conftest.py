@@ -60,7 +60,9 @@ async def event_loop():
     """Создание экземпляра цикла событий по умолчанию
      для каждого тестового примера."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
+
     yield loop
+
     loop.close()
 
 
@@ -68,4 +70,5 @@ async def event_loop():
 async def async_client() -> AsyncGenerator[AsyncClient, None]:
     """Создание Асинхронного Клиента."""
     async with AsyncClient(app=app, base_url='http://test') as ac:
+
         yield ac
