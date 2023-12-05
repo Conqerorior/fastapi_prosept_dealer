@@ -56,7 +56,7 @@ class DelMatchingProductDealer(Base):
     product_ids = Column(ARRAY(Integer), comment='Пять ID товаров от Просепт')
     dealer_product_id = Column(
         Integer, ForeignKey('marketing_dealerprice.id'),
-        comment='ID товара от диллера'
+        comment='ID товара от дилера'
     )
 
     dealer_product = relationship("MarketingDealerPrice")

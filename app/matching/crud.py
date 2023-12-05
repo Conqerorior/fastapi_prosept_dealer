@@ -9,6 +9,13 @@ from .models import (DelMatchingProductDealer, MatchingProductDealer,
                      MatchPositiveProductDealer, Statistics)
 
 
+async def get_product_dealer(db: AsyncSession, model):
+    """Получаем все объекты из выбранной модели."""
+
+    result = await db.execute(select(model))
+    return result.scalars().all()
+
+
 async def get_all_data(db: AsyncSession, model):
     """Получаем все объекты из выбранной модели."""
 

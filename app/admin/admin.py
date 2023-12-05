@@ -1,9 +1,11 @@
 from sqladmin import Admin, ModelView
 
-from app.matching.models import MatchingProductDealer
-from app.products.models import (DelMatchingProductDealer, MarketingDealer,
-                                 MarketingDealerPrice, MarketingProduct,
-                                 MatchPositiveProductDealer)
+from app.matching.models import (MatchingProductDealer,
+                                 MatchPositiveProductDealer,
+                                 DelMatchingProductDealer)
+from app.products.models import (MarketingDealer,
+                                 MarketingDealerPrice,
+                                 MarketingProduct)
 
 
 def setup_admin(app, engine):
@@ -102,7 +104,8 @@ def setup_admin(app, engine):
             MatchingProductDealer.order
         ]
 
-    class MatchPositiveProductDealerAdmin(ModelView, model=MatchPositiveProductDealer):
+    class MatchPositiveProductDealerAdmin(ModelView,
+                                          model=MatchPositiveProductDealer):
         """Отображение модели принятых карточек."""
 
         name = 'Принятые карточки'
@@ -117,14 +120,15 @@ def setup_admin(app, engine):
             MatchPositiveProductDealer.product_id,
         ]
 
-    class DelMatchingProductDealerAdmin(ModelView, model=DelMatchingProductDealer):
+    class DelMatchingProductDealerAdmin(ModelView,
+                                        model=DelMatchingProductDealer):
         """Отображение модели удалённых карточек."""
 
         name = 'Удалённые карточки'
         name_plural = 'Удалённые карточки'
         column_labels = {
             DelMatchingProductDealer.product_ids: 'Пять ID товаров от Просепт',
-            DelMatchingProductDealer.dealer_product_id: 'ID товара от диллера',
+            DelMatchingProductDealer.dealer_product_id: 'ID товара от дилера',
         }
         column_list = [
             DelMatchingProductDealer.id,
