@@ -1,7 +1,6 @@
 import asyncio
 from typing import AsyncGenerator
 
-from fastapi.testclient import TestClient
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -48,12 +47,12 @@ app.dependency_overrides[get_db] = override_get_async_session()
 async def create_db():
     """Создание Таблиц в Базе Данных."""
     async with engine_test.begin() as conn:
-        await conn.run_sync(Base.create_all)
+        await conn.run_sync(Base.metadata.create_all)
 
     yield
 
     async with engine_test.begin() as conn:
-        await conn.run_sync(Base.drop_all)
+        await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest.fixture(scope='session')
