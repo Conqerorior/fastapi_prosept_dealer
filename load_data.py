@@ -1,8 +1,8 @@
-"""Скрипт для добавления данных в БД
+"""Скрипт для добавления данных в БД.
 
 - Сначала загружаются данные из csv файлов.
-- После загрузки данных из csv запускается функция для
-  загрузки данных, которые получены от DS.
+- После загрузки данных из csv, запускается функция для
+  загрузки данных которые получены от DS.
 - Создаём один объект в модели Statistics.
 """
 
@@ -10,6 +10,7 @@ import asyncio
 import csv
 import os
 from datetime import datetime as dt
+from typing import Dict
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,8 +38,8 @@ csv_files = {
     'marketing_product.csv': {
         'model': MarketingProduct,
         'data_types': {
-            'article': int,
-            'cost': float,
+            'cost': int,
+            'article': float,
             'min_recommended_price': float,
             'recommended_price': float}
     },
@@ -49,11 +50,19 @@ csv_files = {
 }
 
 
-def convert_data_types(row, data_types):
+def convert_data_types(row: Dict, data_types: Dict) -> Dict:
     """Функция для преобразования полей к необходимому типу данных.
 
     При работе с асинхронным кодом необходимо явно преобразовывать
     типы данных перед их вставкой в базу данных.
+
+    Args:
+        - row (Dict): Словарь, где ключи - это имена полей,
+          а значения - соответствующие данные.
+        - data_types (Dict): Словарь с правилами для преобразования полей.
+
+    Returns:
+        - row (Dict): Изменённый словарь, с правильно указанными типами данных.
     """
 
     for key, data_type in data_types.items():
@@ -71,14 +80,14 @@ def convert_data_types(row, data_types):
     return row
 
 
-async def add_data_from_csv(file_configs, session):
+async def add_data_from_csv(file_configs: Dict, session: AsyncSession) -> None:
     """Функция добавляет данные из CSV файлов в базу данных.
 
     Args:
-        file_configs (dict): Словарь, содержащий настройки для каждого
-                             типа файла CSV, включая модель для записи данных
-                             и правила преобразования данных.
-        session (AsyncSession): Асинхронная сессия для подключения к БД.
+        - file_configs (Dict): Словарь, содержащий настройки для каждого
+                               типа файла CSV, включая модель для записи данных
+                               и правила преобразования данных.
+        - session (AsyncSession): Асинхронная сессия для подключения к БД.
     """
 
     try:
@@ -107,7 +116,7 @@ async def add_data_from_csv(file_configs, session):
         raise e
 
 
-async def add_statistics(session: AsyncSession):
+async def add_statistics(session: AsyncSession) -> None:
     """Создаём объект в модели Statistics."""
 
     new_object = Statistics(id=1)

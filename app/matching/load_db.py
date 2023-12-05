@@ -15,15 +15,18 @@ from .script_ds import matching_predict, matching_training
 
 
 async def data_preparation(
-        db: AsyncSession = Depends(get_db)) -> List[MatchingProductDealer]:
+        db: AsyncSession = Depends(get_db)
+) -> List[MatchingProductDealer]:
     """Подготавливаем данные от DS. Функция вернёт список объектов модели.
 
     - Получаем данные из моделей MarketingProductDealerKey, MarketingProduct,
-      и MarketingDealerPrice, преобразуем их в списки словарей.
-    - Получаем результат функции DS специалистов.
+      и MarketingDealerPrice, преобразуем их в списки со словарями.
+    - Получаем результат функции DS специалистов. Обучаем модель, и передаём
+      данные в функцию для предсказания.
     - Добавляем в каждый словарь дополнительный ключ «dealerprice_id», для
       связи с объектами модели «MarketingDealerPrice».
     - В каждом словаре объединяем полученные пять ID в один список.
+    - Создаём объекты модели «MatchingProductDealer».
 
     Args:
         db(AsyncSession): Асинхронная сессия для доступа к базе данных.
@@ -48,7 +51,7 @@ async def data_preparation(
 
     """
     Добавляем в каждый словарь дополнительный ключ «dealerprice_id», что-бы
-    была связь между полученными id и объектами модели MarketingDealerPrice.
+    была связь между полученными id и объектами модели «MarketingDealerPrice».
     """
     if len(matching) == len(lst_dict_dr):
         for match_dict, dr_dict in zip(matching, lst_dict_dr):
@@ -58,7 +61,6 @@ async def data_preparation(
     - В каждом словаре объединяем полученные пять ID в один список.
     - И создаём объекты модели «MatchingProductDealer».
     """
-
     matching_products = []
     for dict_item in matching:
         product_ids = [dict_item[str(i)] for i in range(1, 6)]
@@ -72,7 +74,7 @@ async def data_preparation(
     return matching_products
 
 
-async def load_data(session: AsyncSession):
+async def load_data(session: AsyncSession) -> None:
     """Загрузка подготовленных данных в БД."""
 
     matching_products = await data_preparation(session)

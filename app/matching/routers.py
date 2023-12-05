@@ -6,11 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.products.models import MarketingDealerPrice, MarketingProduct
 
-from .crud import (create_dealer_product, get_5_prosept_products, get_all_data,
-                   get_data_by_id, get_dealer_name,
-                   get_match_positive_product_dealer, patch_dealer_product,
-                   save_delete_dealer_product, update_statistics)
-from .models import MatchingProductDealer, Statistics
+from .crud import (create_dealer_product, get_5_prosept_products,
+                   get_data_by_id, get_data_matching_product_dealer,
+                   get_dealer_name, get_match_positive_product_dealer,
+                   patch_dealer_product, save_delete_dealer_product,
+                   update_statistics)
+from .models import Statistics
 from .schemas import (DealerProductModel, MatchingProductDealerModel,
                       MatchPositiveProductDealerModel, ProductData,
                       StatisticsData)
@@ -30,9 +31,8 @@ async def read_dealer_product(db: AsyncSession = Depends(get_db)):
 
     response = []
 
-    matching_products = await get_all_data(db, MatchingProductDealer)
+    matching_products = await get_data_matching_product_dealer(db)
     for matching_product in matching_products:
-
         """
         Получаем один объект дилера, и получаем для него все
         необходимые значения, которые нужно передать фронтам
@@ -74,8 +74,7 @@ async def read_dealer_product(db: AsyncSession = Depends(get_db)):
 @api_version1.post('/api/v1/matching/{dealer_product_id}', tags=['Матчинг'],
                    response_model=MatchPositiveProductDealerModel,
                    status_code=status.HTTP_201_CREATED,
-                   summary='Сохранение карточки '
-                           'после обработки оператором')
+                   summary='Сохранение карточки после обработки оператором')
 async def post_product(
         prosept_product_id: ProductData,
         dealer_product_id: int = Path(..., description='ID карточки дилера'),
@@ -83,9 +82,9 @@ async def post_product(
 ):
     """
     - Удаляем объект из модели «MatchingProductDealer», по значению
-      поля dealer_product_id. И создаем новую запись в
-      «MatchPositiveProductDealer» с карточкой Просепт, полученной
-      по значению prosept_id.
+      поля dealer_product_id.
+    - Создаем новую запись в «MatchPositiveProductDealer» с карточкой Просепт,
+      полученной по значению prosept_id.
     """
 
     prosept_id = prosept_product_id.prosept_id
@@ -125,7 +124,6 @@ async def patch_product(
     """
     - Меняем поле order в модели «MatchingProductDealer», что-бы при сортировке
       по этому полю изменённый объект оказался в конце списка.
-
     - Переносим выбранную карточку дилера в конец списка.
     """
 
@@ -145,7 +143,6 @@ async def delete_product(
     - Удаляем объект модели «MatchingProductDealer», по значению
       поля dealer_product_id. И создаем новую запись в
       «DelMatchingProductDealer».
-
     - Удаляем карточку дилера и 5 связанных с ним карточек товаров Просепт.
     """
 
