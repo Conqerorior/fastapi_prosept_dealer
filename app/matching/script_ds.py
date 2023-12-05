@@ -1,3 +1,5 @@
+"""Функция от DS."""
+
 import re
 
 import lightgbm as lgb
@@ -11,30 +13,34 @@ from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from scipy.spatial.distance import cdist
 from sklearn.model_selection import train_test_split
-from tqdm import notebook
+from tqdm import tqdm
 
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
+nltk.download('stopwords', quiet=True)
+nltk.download('punkt', quiet=True)
+nltk.download('wordnet', quiet=True)
+nltk.download('omw-1.4', quiet=True)
+pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k, nm='name'):
-    """
-    ФУНКЦИЯ ДЛЯ ОБУЧЕНИЯ
-    Возвращает обученную модель,
-    которую надо подставить на вход в функцию предсказаний:
-    -lst_dict_pr список словарей карточек производителя
-    -lst_dict_dr список словарей карточек диллеров для обучения
-    -lst_dict_k список словарей внешних ключей.
+def matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k, nm: str = 'name'):
+    """Функция для обучения модели.
+
+    Args:
+        - lst_dict_pr (List[Dict]): Список словарей карточек Просепт.
+        - lst_dict_dr (List[Dict]): Список словарей карточек дилеров для обучения.
+        - lst_dict_k (List[Dict]): Список словарей внешних ключей.
+        - nm (str): Столбец, по которому происходит сравнение.
+
+    Returns:
+        - Возвращает обученную модель, которую надо подставить на вход в функцию предсказаний.
     """
     data_mdp = pd.DataFrame(lst_dict_dr)
     data_mp = pd.DataFrame(lst_dict_pr)
     data_mpdk = pd.DataFrame(lst_dict_k)
 
     def remove_row_dealer(data_mp, data_mdp, data_mpdk):
-        """
-        Функция для удаления строк из данных от дилеров.
+        """Функция для удаления строк из данных от дилеров.
+
         Удаляются строки, для которых нет значений id продуктов
         из данных производителя и строки, id из данных производителя
         которых совпадают с id удаляемых строк из данных производителя
@@ -65,7 +71,7 @@ def matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k, nm='name'):
 
     remove_row_dealer(data_mp, data_mdp, data_mpdk)
 
-    # удаляем пропуски в столбце name 
+    # удаляем пропуски в столбце name
     data_mp.dropna(subset=[nm], inplace=True)
     data_mp.reset_index(drop=True, inplace=True)
 
@@ -155,7 +161,7 @@ def matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k, nm='name'):
 
         batch_size = 32
         embeddings = []
-        for i in notebook.tqdm(range(padded.shape[0] // batch_size)):
+        for i in tqdm(range(padded.shape[0] // batch_size)):
             batch = torch.LongTensor(
                 padded[batch_size * i:batch_size * (i + 1)])
             attention_mask_batch = torch.LongTensor(
@@ -256,22 +262,23 @@ def matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k, nm='name'):
     return model, features_mp
 
 
-def matching_predict(lst_dict_pr, lst_dict_tst, model_embeddings_pr, k=5,
-                     nm='name'):
-    """
-    ФУНКЦИЯ ДЛЯ ПРЕДСКАЗАНИЯ
-    -lst_dict_pr список словарей карточек производителей
-    -lst_dict_tst список словарей карточек диллеров для предсказания
-    -model_embeddings обученная модель и эмбеддинги (два объекта
-     из возвращения функции для обучения)
-    -k колличество выводимых id товаров производителя
-    для каждой карточки диллера (по умолчанию равно 5)
+def matching_predict(lst_dict_pr, lst_dict_tst, model_embeddings_pr, k=5, nm='name'):
+    """Функция для предсказания.
+
+    Args:
+        - lst_dict_pr (List[Dict]): Список словарей карточек Просепт.
+        - lst_dict_dr (List[Dict]): Список словарей карточек дилеров для обучения.
+        - model_embeddings: Обученная модель и эмбеддинги (два объекта из
+          возвращения функции для обучения).
+        - k (int): колличество выводимых id товаров производителя
+          для каждой карточки диллера (по умолчанию равно 5).
+        - nm (str): Столбец, по которому происходит сравнение.
     """
 
     data_mdp_test = pd.DataFrame(lst_dict_tst)
     data_mp = pd.DataFrame(lst_dict_pr)
 
-    # удаляем пропуски в столбце name 
+    # удаляем пропуски в столбце name
     data_mp.dropna(subset=[nm], inplace=True)
     data_mp.reset_index(drop=True, inplace=True)
 
@@ -355,7 +362,7 @@ def matching_predict(lst_dict_pr, lst_dict_tst, model_embeddings_pr, k=5,
 
         batch_size = 32
         embeddings = []
-        for i in notebook.tqdm(range(padded.shape[0] // batch_size)):
+        for i in tqdm(range(padded.shape[0] // batch_size)):
             batch = torch.LongTensor(
                 padded[batch_size * i:batch_size * (i + 1)])
             attention_mask_batch = torch.LongTensor(
@@ -418,9 +425,8 @@ def matching_predict(lst_dict_pr, lst_dict_tst, model_embeddings_pr, k=5,
 
     # итоговый фрэйм с k самых вероятных id
     result = pd.DataFrame(
-        [[df_res_lm_t.loc[i, df_ind_all.loc[i,
-                             :][j]] for j in range(k)] for
-         i in range(df_ind_all.shape[0])])
+        [[df_res_lm_t.loc[i, df_ind_all.loc[i, :][j]] for j in range(k)]
+         for i in range(df_ind_all.shape[0])])
     result.columns = [str(i) for i in range(1, k + 1)]
 
     res_k = result.to_dict('records')

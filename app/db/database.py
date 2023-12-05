@@ -1,7 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base # функция declarative_base была перемещена в sqlalchemy.orm начиная с версии 2.0 SQLAlchemy
-
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from app.config import (DB_HOST, DB_NAME, DB_PORT, POSTGRES_PASSWORD,
                         POSTGRES_USER)

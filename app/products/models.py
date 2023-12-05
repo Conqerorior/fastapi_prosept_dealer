@@ -1,3 +1,5 @@
+"""Модели для данных из csv файлов."""
+
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -54,9 +56,9 @@ class MarketingProduct(Base):
     __tablename__ = 'marketing_product'
 
     id = Column(Integer, primary_key=True, index=True)
-    article = Column(Integer, comment='артикул товара', nullable=False)
+    article = Column(Float, comment='артикул товара', nullable=False)
     ean_13 = Column(String, comment='код товара')
-    cost = Column(Float, comment='стоимость', nullable=False)
+    cost = Column(Integer, comment='стоимость', nullable=False)
     name = Column(String, comment='название товара')
     min_recommended_price = Column(
         Float, comment='рекомендованная минимальная цена'

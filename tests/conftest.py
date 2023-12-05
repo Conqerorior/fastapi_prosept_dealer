@@ -3,19 +3,13 @@ from typing import AsyncGenerator
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-from app.config import (
-    DB_TEST_USER,
-    DB_TEST_PASSWORD,
-    DB_TEST_HOST,
-    DB_TEST_PORT,
-    DB_TEST_NAME, )
-from app.main import app
-
+from app.config import (DB_TEST_HOST, DB_TEST_NAME, DB_TEST_PASSWORD,
+                        DB_TEST_PORT, DB_TEST_USER)
 from app.db.database import get_db
+from app.main import app
 
 SQLALCHEMY_DATABASE_URL_TEST = (
     f"postgresql+asyncpg:"

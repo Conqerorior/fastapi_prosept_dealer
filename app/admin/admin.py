@@ -1,12 +1,10 @@
 from sqladmin import Admin, ModelView
 
-from app.matching.crud import get_dealer_name
-from app.matching.models import (MatchingProductDealer,
-                                 MatchPositiveProductDealer,
-                                 DelMatchingProductDealer)
-from app.products.models import (MarketingDealer,
-                                 MarketingDealerPrice,
-                                 MarketingProduct, )
+from app.matching.models import (DelMatchingProductDealer,
+                                 MatchingProductDealer,
+                                 MatchPositiveProductDealer)
+from app.products.models import (MarketingDealer, MarketingDealerPrice,
+                                 MarketingProduct)
 
 
 def setup_admin(app, engine):
@@ -114,18 +112,6 @@ def setup_admin(app, engine):
         column_labels = {
             MatchPositiveProductDealer.dealer_product_id: 'ID товара от дилера',
             MatchPositiveProductDealer.product_id: 'ID товара Просепт',
-        }
-
-        def dealer_formatter(self, obj):
-            dealer_name = get_dealer_name(engine, self.dealer_product_id)
-            return dealer_name
-
-        def product_formatter(self, value):
-            pass
-
-        column_formatters = {
-            MatchPositiveProductDealer.dealer_product_id: dealer_formatter,
-            MatchPositiveProductDealer.product_id: product_formatter
         }
 
         column_list = [
