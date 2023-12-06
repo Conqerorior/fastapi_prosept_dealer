@@ -50,7 +50,7 @@ pydantic==2.5.2
 pydantic-extra-types==2.1.0
 pydantic-settings==2.1.0
 pydantic_core==2.14.5
-pytest==7.4.3
+pytest-asyncio==0.23.2
 python-dateutil==2.8.2
 python-dotenv==1.0.0
 python-jose==3.3.0

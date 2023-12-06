@@ -1,4 +1,9 @@
 [tools.pytests.ini_options]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pytest-asyncio = "0.23.2"
+
 pythonpath = [
     '.', 'app',
 ]
