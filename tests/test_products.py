@@ -44,6 +44,14 @@ async def test_marketing_dealer(async_client: AsyncClient):
 
         result = await data_to_dict(marketing_dealers)
 
+        expected_types = {
+            'id': int,
+            'name': str,
+        }
+
+        exp_type = await compare_type(result, expected_types)
+
+        assert exp_type
         assert result is not None
         assert len(result[0]) == 2
         assert result[0]['id'] == 1
