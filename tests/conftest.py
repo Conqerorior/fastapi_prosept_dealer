@@ -14,6 +14,8 @@ from app.db.database import Base, get_db
 from app.main import app
 from app.products.models import (MarketingDealerPrice, MarketingProduct,
                                  MarketingDealer)
+from app.matching.load_db import load_data
+from app.matching.models import MatchingProductDealer
 
 SQLALCHEMY_DATABASE_URL_TEST = (
     f"postgresql+asyncpg:"
@@ -124,3 +126,14 @@ async def fixture_marketing_products():
             await session.commit()
 
     return MarketingProduct
+
+
+@pytest.fixture(scope='session')
+async def fixture_data_preparation():
+    async with async_session_marker() as session:
+        test_data_preparation = await load_data(session)
+
+    await session.execute(test_data_preparation)
+    await session.commit()
+
+    return MatchingProductDealer

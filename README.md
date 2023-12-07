@@ -92,14 +92,14 @@ WEB-PgAdmin будет доступен по url-адресу [127.0.0.1:5050](h
 # Авторы:
 
 * **Backend:**
-  + [Сергей](https://github.com/Conqerorior)
   + [Иван](https://github.com/clownvkkaschenko)
+  + [Сергей](https://github.com/Conqerorior)
+
 
 * **Data Science:**
-  + Кристина
-  + Юлия
-  + Александр
+  + [Кристина](https://github.com/Kristinadwbh)
+
 
 * **Frontend:**
-  + Дмитрий
-  + Глеб
+  + [Дмитрий](https://github.com/dimidrrol)
+  + [Глеб](https://github.com/SimonMatveev)
