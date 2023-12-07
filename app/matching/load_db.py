@@ -17,12 +17,11 @@ from .script_ds import matching_predict, matching_training
 async def data_preparation(
         db: AsyncSession = Depends(get_db)
 ) -> List[MatchingProductDealer]:
-    """Подготавливаем данные от DS. Функция вернёт список объектов модели.
+    """Подготавливаем данные от DS. Функция вернёт список со словарями.
 
     - Получаем данные из моделей MarketingProductDealerKey, MarketingProduct,
       и MarketingDealerPrice, преобразуем их в списки со словарями.
-    - Получаем результат функции DS специалистов. Обучаем модель, и передаём
-      данные в функцию для предсказания.
+    - Обучаем модель DS, и передаём данные в функцию для предсказания.
     - Добавляем в каждый словарь дополнительный ключ «dealerprice_id», для
       связи с объектами модели «MarketingDealerPrice».
     - В каждом словаре объединяем полученные пять ID в один список.
@@ -45,7 +44,7 @@ async def data_preparation(
     lst_dict_dr = [item.to_dict() for item in dealerprice.scalars().all()]
     lst_dict_k = [item.to_dict() for item in productdealerkey.scalars().all()]
 
-    # Получаем результат функции DS специалистов
+    # Обучаем модель DS, и передаём данные в функцию для предсказания.
     trained_model = matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k)
     matching = matching_predict(lst_dict_pr, lst_dict_dr, trained_model)
 
@@ -75,7 +74,7 @@ async def data_preparation(
 
 
 async def load_data(session: AsyncSession) -> None:
-    """Загрузка подготовленных данных в БД."""
+    """Загрузка подготовленных данных матчинга в БД."""
 
     matching_products = await data_preparation(session)
     try:

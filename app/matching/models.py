@@ -5,7 +5,7 @@ from app.db.database import Base
 
 
 class MatchingProductDealer(Base):
-    """Матчинг товаров Просепт и товаров дилеров от наших DS."""
+    """Матчинг товаров «Просепт» и товаров дилеров от наших DS."""
 
     __tablename__ = 'matching_product_dealer'
 
@@ -23,10 +23,7 @@ class MatchingProductDealer(Base):
 
 
 class MatchPositiveProductDealer(Base):
-    """
-    Итоговая таблица с карточкой дилера и карточкой Просепт,
-    которую выбрал оператор.
-    """
+    """Итоговая таблица с карточкой дилера и карточкой «Просепт», которую выбрал оператор."""
 
     __tablename__ = 'match_positive_prod_dealer'
 
@@ -46,8 +43,8 @@ class MatchPositiveProductDealer(Base):
 
 class DelMatchingProductDealer(Base):
     """
-    Объекты у которых предложенные варианты товаров Просепт
-    не соответствуют карточке дилера.
+    Объекты у которых предложенные варианты товаров «Просепт»
+    не соответствуют ни одной карточке дилера.
     """
 
     __tablename__ = 'del_matching_product_dealer'

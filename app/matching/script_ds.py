@@ -1,6 +1,7 @@
-"""Функция от DS."""
+"""Функция для обучения модели и функция для предсказания от DS."""
 
 import re
+from typing import Dict, List
 
 import lightgbm as lgb
 import nltk
@@ -19,21 +20,27 @@ nltk.download('stopwords', quiet=True)
 nltk.download('punkt', quiet=True)
 nltk.download('wordnet', quiet=True)
 nltk.download('omw-1.4', quiet=True)
-pd.options.mode.chained_assignment = None  # default='warn'
+pd.options.mode.chained_assignment = None
 
 
-def matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k, nm: str = 'name'):
+def matching_training(
+    lst_dict_pr: List[Dict],
+    lst_dict_dr: List[Dict],
+    lst_dict_k: List[Dict],
+    nm: str = 'name'
+):
     """Функция для обучения модели.
 
     Args:
         - lst_dict_pr (List[Dict]): Список словарей карточек Просепт.
         - lst_dict_dr (List[Dict]): Список словарей карточек дилеров для обучения.
         - lst_dict_k (List[Dict]): Список словарей внешних ключей.
-        - nm (str): Столбец, по которому происходит сравнение.
+        - nm (str): Столбец, по которому происходит сравнение(по умолчанию «name»).
 
     Returns:
         - Возвращает обученную модель, которую надо подставить на вход в функцию предсказаний.
     """
+
     data_mdp = pd.DataFrame(lst_dict_dr)
     data_mp = pd.DataFrame(lst_dict_pr)
     data_mpdk = pd.DataFrame(lst_dict_k)
@@ -46,25 +53,24 @@ def matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k, nm: str = 'name'):
         которых совпадают с id удаляемых строк из данных производителя
         с отсутствующими описаниями.
         """
-        test_null = data_mdp.merge(data_mpdk,
-                                   how='left',
-                                   left_on='product_key',
-                                   right_on='key').loc[:, ['product_key',
-                                                           'key',
-                                                           'product_id']]
+        test_null = data_mdp.merge(
+            data_mpdk,
+            how='left',
+            left_on='product_key',
+            right_on='key').loc[:, ['product_key', 'key', 'product_id']]
+
         ind_drop = test_null.loc[test_null['product_id'].isnull()].index.values
         data_mdp.drop(ind_drop, axis=0, inplace=True)
 
         id_drop = data_mp.loc[data_mp[nm].isnull()]['id']
-        drop = data_mpdk.loc[data_mpdk['product_id'].isin(id_drop), ['key',
-                                                                     'dealer_id']]
+        drop = data_mpdk.loc[data_mpdk['product_id'].isin(id_drop), ['key', 'dealer_id']]
+
         ind_drop_mdp = []
         for k, v in zip(drop['key'], drop['dealer_id']):
-            ind_drop_mdp.extend(list(data_mdp.loc[(data_mdp['product_key'] == k)
-                                                  & (data_mdp[
-                                                         'dealer_id'] == v)].index.values))
-        data_mdp.drop(ind_drop_mdp, axis=0, inplace=True)
+            ind_drop_mdp.extend(list(data_mdp.loc[
+                (data_mdp['product_key'] == k) & (data_mdp['dealer_id'] == v)].index.values))
 
+        data_mdp.drop(ind_drop_mdp, axis=0, inplace=True)
         data_mdp.reset_index(drop=True, inplace=True)
 
         return
@@ -272,7 +278,7 @@ def matching_predict(lst_dict_pr, lst_dict_tst, model_embeddings_pr, k=5, nm='na
           возвращения функции для обучения).
         - k (int): колличество выводимых id товаров производителя
           для каждой карточки диллера (по умолчанию равно 5).
-        - nm (str): Столбец, по которому происходит сравнение.
+        - nm (str): Столбец, по которому происходит сравнение(по умолчанию «name»).
     """
 
     data_mdp_test = pd.DataFrame(lst_dict_tst)

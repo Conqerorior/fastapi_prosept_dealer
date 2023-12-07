@@ -56,13 +56,10 @@ class MarketingProduct(Base):
     __tablename__ = 'marketing_product'
 
     id = Column(Integer, primary_key=True, index=True)
-    article = Column(Float, comment='артикул товара', nullable=False)
+    article = Column(String, comment='артикул товара', nullable=False)
     ean_13 = Column(String, comment='код товара')
-    cost = Column(Integer, comment='стоимость', nullable=False)
     name = Column(String, comment='название товара')
-    min_recommended_price = Column(
-        Float, comment='рекомендованная минимальная цена'
-    )
+    cost = Column(Float, comment='стоимость', nullable=False)
     recommended_price = Column(Float, comment='рекомендованная цена')
     category_id = Column(String, comment='категория товара')
     ozon_name = Column(String, comment='названиет товара на Озоне')
