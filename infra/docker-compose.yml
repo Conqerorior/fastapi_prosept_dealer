@@ -26,12 +26,22 @@ services:
 
   backend:
     container_name: backend
-    build: ../.
+    image: kaschenko/prosept_backend:v1
     restart: always
     depends_on:
       - db
     env_file:
       - ./.env
+
+  frontend:
+    image: kaschenko/prosept_front:v3
+    volumes:
+      - ./frontend/:/app/result_build/
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+    container_name: frontend
 
   nginx:
     container_name: nginx
@@ -41,8 +51,10 @@ services:
       - "80:80"
     volumes:
       - ./default.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend/dist:/usr/share/nginx/html/
     depends_on:
       - backend
+      - frontend
 
 volumes:
   database:
