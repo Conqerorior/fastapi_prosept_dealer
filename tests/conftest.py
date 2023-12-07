@@ -12,7 +12,8 @@ from app.config import (DB_TEST_HOST, DB_TEST_NAME, DB_TEST_PASSWORD,
                         DB_TEST_PORT, DB_TEST_USER)
 from app.db.database import Base, get_db
 from app.main import app
-from app.products.models import MarketingDealerPrice, MarketingProduct
+from app.products.models import (MarketingDealerPrice, MarketingProduct,
+                                 MarketingDealer)
 
 SQLALCHEMY_DATABASE_URL_TEST = (
     f"postgresql+asyncpg:"
@@ -66,6 +67,19 @@ async def async_client(custom_event_loop) -> AsyncGenerator[AsyncClient, None]:
     """Создание Асинхронного Клиента."""
     async with AsyncClient(app=app, base_url='http://test') as ac:
         yield ac
+
+
+@pytest.fixture(scope='session')
+async def fixture_marketing_dealer():
+    async with async_session_marker() as session:
+        test_data = insert(MarketingDealer).values(
+            id=1,
+            name='Test_Dealer'
+        )
+        await session.execute(test_data)
+        await session.commit()
+
+    return MarketingProduct
 
 
 @pytest.fixture(scope='session')

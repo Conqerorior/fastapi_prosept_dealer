@@ -27,17 +27,9 @@ async def compare_type(must, expected):
     return True
 
 
-async def test_marketing_dealer(async_client: AsyncClient):
-    """Создаем тестовую запись в базе данных."""
+async def test_marketing_dealer(fixture_marketing_dealer: MarketingDealer):
 
     async with async_session_marker() as session:
-        test_data = insert(MarketingDealer).values(
-            id=1,
-            name='Test_Dealer'
-        )
-        await session.execute(test_data)
-        await session.commit()
-
         query = select(MarketingDealer)
         res = await session.execute(query)
         marketing_dealers = res.scalars().all()
