@@ -64,7 +64,6 @@ def setup_admin(app, engine):
             MarketingProduct.cost: 'Цена',
             MarketingProduct.ean_13: 'Код Товара',
             MarketingProduct.article: 'Артикул',
-            MarketingProduct.min_recommended_price: 'Рекомендованная мин.цена',
             MarketingProduct.recommended_price: 'Рекомендованная Цена',
         }
 
@@ -78,7 +77,6 @@ def setup_admin(app, engine):
             MarketingProduct.ean_13,
             MarketingProduct.article,
             MarketingProduct.category_id,
-            MarketingProduct.min_recommended_price,
             MarketingProduct.recommended_price,
         ]
 

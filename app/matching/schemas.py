@@ -11,7 +11,7 @@ class DealerProductModel(BaseModel):
 
 class ProseptProductModel(BaseModel):
     id: int = Field(description='ID объекта в БД')
-    article: int = Field(description='Артикул товара')
+    article: str = Field(description='Артикул товара')
     cost: float = Field(description='Цена')
     name_1c: str = Field(description='Название товара')
 

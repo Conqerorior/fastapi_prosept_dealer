@@ -38,9 +38,7 @@ csv_files = {
     'marketing_product.csv': {
         'model': MarketingProduct,
         'data_types': {
-            'cost': int,
-            'article': float,
-            'min_recommended_price': float,
+            'cost': float,
             'recommended_price': float}
     },
     'marketing_productdealerkey.csv': {
@@ -98,6 +96,10 @@ async def add_data_from_csv(file_configs: Dict, session: AsyncSession) -> None:
             with open(file, encoding='utf-8', newline='') as file:
                 reader = csv.DictReader(file, delimiter=';')
                 for row in reader:
+
+                    if csv_file == 'marketing_product.csv':
+                        row.pop('line_number', None)
+
                     row['id'] = int(row['id'])
                     row = convert_data_types(row, data_types)
 

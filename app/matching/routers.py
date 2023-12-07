@@ -26,7 +26,7 @@ api_version1 = APIRouter()
 async def read_dealer_product(db: AsyncSession = Depends(get_db)):
     """
     - Получаем все объекты модели «MatchingProductDealer».
-    - В каждом объекте одна карточка дилера и пять карточек товаров Просепт.
+    - В каждом объекте одна карточка дилера и пять карточек товаров «Просепт».
     """
 
     response = []
@@ -83,7 +83,7 @@ async def post_product(
     """
     - Удаляем объект из модели «MatchingProductDealer», по значению
       поля dealer_product_id.
-    - Создаем новую запись в «MatchPositiveProductDealer» с карточкой Просепт,
+    - Создаем новую запись в «MatchPositiveProductDealer» с карточкой «Просепт»,
       полученной по значению prosept_id.
     """
 
@@ -141,9 +141,9 @@ async def delete_product(
 ):
     """
     - Удаляем объект модели «MatchingProductDealer», по значению
-      поля dealer_product_id. И создаем новую запись в
+      поля «dealer_product_id». И создаем новую запись в
       «DelMatchingProductDealer».
-    - Удаляем карточку дилера и 5 связанных с ним карточек товаров Просепт.
+    - Удаляем карточку дилера и 5 связанных с ним карточек товаров «Просепт».
     """
 
     await save_delete_dealer_product(db, dealer_product_id)
