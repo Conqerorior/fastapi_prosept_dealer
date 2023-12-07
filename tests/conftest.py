@@ -1,17 +1,21 @@
 import asyncio
+from datetime import datetime
 from typing import AsyncGenerator
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy import NullPool
+from sqlalchemy import NullPool, insert
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.config import (DB_TEST_HOST, DB_TEST_NAME, DB_TEST_PASSWORD,
-                         DB_TEST_PORT, DB_TEST_USER)
-from app.db.database import get_db, Base
+                        DB_TEST_PORT, DB_TEST_USER)
+from app.db.database import Base, get_db
 from app.main import app
-
+from app.products.models import (MarketingDealerPrice, MarketingProduct,
+                                 MarketingDealer)
+from app.matching.load_db import load_data
+from app.matching.models import MatchingProductDealer
 
 SQLALCHEMY_DATABASE_URL_TEST = (
     f"postgresql+asyncpg:"
@@ -21,7 +25,6 @@ SQLALCHEMY_DATABASE_URL_TEST = (
     f":{DB_TEST_PORT}"
     f"/{DB_TEST_NAME}"
 )
-
 
 engine_test = create_async_engine(SQLALCHEMY_DATABASE_URL_TEST,
                                   poolclass=NullPool)
@@ -66,3 +69,71 @@ async def async_client(custom_event_loop) -> AsyncGenerator[AsyncClient, None]:
     """Создание Асинхронного Клиента."""
     async with AsyncClient(app=app, base_url='http://test') as ac:
         yield ac
+
+
+@pytest.fixture(scope='session')
+async def fixture_marketing_dealer():
+    async with async_session_marker() as session:
+        test_data = insert(MarketingDealer).values(
+            id=1,
+            name='Test_Dealer'
+        )
+        await session.execute(test_data)
+        await session.commit()
+
+    return MarketingProduct
+
+
+@pytest.fixture(scope='session')
+async def fixture_marketing_dealer_price():
+    async with async_session_marker() as session:
+        test_data = insert(MarketingDealerPrice).values(
+            id=1,
+            product_key='1234567890',
+            price=1000,
+            product_url='https://example.com/product1',
+            product_name='Продукт 1',
+            date=datetime.now(),
+            dealer_id=1
+        )
+        await session.execute(test_data)
+        await session.commit()
+
+    return MarketingDealerPrice
+
+
+@pytest.fixture(scope='session')
+async def fixture_marketing_products():
+    async with async_session_marker() as session:
+        for i in range(1, 6):
+            test_data = insert(MarketingProduct).values(
+                id=i,
+                article=f'Артикул {i * 5}',
+                ean_13=f'EAN-13 {i * 10}',
+                name=f'Продукт {i}',
+                cost=10 * i,
+                recommended_price=150 * i,
+                category_id='Категория',
+                ozon_name=f'Название на Озоне {i}',
+                name_1c=f'Название в 1C {i}',
+                wb_name=f'Название на Wildberries {i}',
+                ozon_article=f'Описание для Озон {i}',
+                wb_article=f'Артикул для Wildberries {i}',
+                ym_article=f'Артикул для Яндекс.Маркета {i}',
+                wb_article_td=f'Артикул для Wildberries td {i}'
+            )
+            await session.execute(test_data)
+            await session.commit()
+
+    return MarketingProduct
+
+
+@pytest.fixture(scope='session')
+async def fixture_data_preparation():
+    async with async_session_marker() as session:
+        test_data_preparation = await load_data(session)
+
+    await session.execute(test_data_preparation)
+    await session.commit()
+
+    return MatchingProductDealer

@@ -62,7 +62,7 @@ class MarketingProduct(Base):
     cost = Column(Float, comment='стоимость', nullable=False)
     recommended_price = Column(Float, comment='рекомендованная цена')
     category_id = Column(String, comment='категория товара')
-    ozon_name = Column(String, comment='названиет товара на Озоне')
+    ozon_name = Column(String, comment='название товара на Озоне')
     name_1c = Column(String, comment='название товара в 1C', nullable=False)
     wb_name = Column(String, comment='название товара на Wildberries')
     ozon_article = Column(String, comment='описание для Озон')
