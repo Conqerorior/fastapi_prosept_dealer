@@ -1,7 +1,9 @@
 """Подготавливаем данные от DS и загружаем их в БД."""
-
+import os
+import pickle
 from typing import List
 
+import pandas as pd
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -45,8 +47,41 @@ async def data_preparation(
     lst_dict_k = [item.to_dict() for item in productdealerkey.scalars().all()]
 
     # Обучаем модель DS, и передаём данные в функцию для предсказания.
-    trained_model = matching_training(lst_dict_pr, lst_dict_dr, lst_dict_k)
-    matching = matching_predict(lst_dict_pr, lst_dict_dr, trained_model)
+    def training_match(name_model, name_features):
+        """
+        Проверяем если есть обученная модель передаем ее,
+        Если нет то обучаем и сохраняем в папку csv.
+
+        Args:
+            Передаем в виде строчки название
+            файла который будет создан или искать в папке csv.
+
+        Returns:
+            Возвращается обученную модель.
+        """
+        try:
+
+            Pkl_filename = os.path.join(f'app/csv/{name_model}')
+
+            with open(Pkl_filename, 'rb') as file:
+                model = pickle.load(file)
+
+                features_mp = pd.read_csv(
+                    os.path.join(f'app/csv/{name_features}'), index_col=[0])
+
+            return model, features_mp
+
+        except FileNotFoundError:
+
+            model, features_mp = matching_training(
+                lst_dict_pr, lst_dict_dr, lst_dict_k)
+
+            return model, features_mp
+
+    matching = matching_predict(
+        lst_dict_pr, lst_dict_dr, training_match(
+            'Pikel_model.pkl',
+            'features_mp.csv'))
 
     """
     Добавляем в каждый словарь дополнительный ключ «dealerprice_id», что-бы

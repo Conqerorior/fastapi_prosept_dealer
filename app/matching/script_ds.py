@@ -1,5 +1,6 @@
 """Функция для обучения модели и функция для предсказания от DS."""
-
+import os
+import pickle
 import re
 from typing import Dict, List
 
@@ -264,6 +265,13 @@ def matching_training(
                       train_data,
                       num_round,
                       valid_sets=[valid_data])
+
+    Pkl_filename = os.path.join('app/csv/Pikel_model.pkl')
+
+    with open(Pkl_filename, 'wb') as file:
+        pickle.dump(model, file)
+
+    features_mp.to_csv('app/csv/features_mp.csv')
 
     return model, features_mp
 
